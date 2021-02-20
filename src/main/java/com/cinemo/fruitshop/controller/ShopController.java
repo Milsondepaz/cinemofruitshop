@@ -29,10 +29,13 @@ public class ShopController {
 	@Autowired
 	private AdminRepository adminRepository;
 
-	private boolean userIsLogged = false;
-	private boolean adminIsLogged = false;
+	private boolean adminIsLogged = false;	
+	private long customerLoggedId = 0;
+	private boolean customerIsLogged = false;
+	private String customerLoggedName = "Login"; 
+	
+	private Customer loggedCustomer;
 
-	private String loginCustomerName = "";
 
 	// Main method that calls the main page of the shop fruit
 	// This method searches the Database for previously registered fruits and shows
@@ -41,9 +44,15 @@ public class ShopController {
 	public ModelAndView home() {
 		ModelAndView modelAndViewFruit = new ModelAndView("index");
 		Iterable<Fruit> fruitList = fruitRepository.findAll();
-		modelAndViewFruit.addObject("fruitList", fruitList);
-		loginCustomerName = "Login";
-		modelAndViewFruit.addObject("loginCustomerName", loginCustomerName);
+		modelAndViewFruit.addObject("fruitList", fruitList);	
+		
+		if (customerIsLogged == true) {
+			customerLoggedName = loggedCustomer.getName() + " - Logout";
+		} else {
+			customerLoggedName = "Login"; 
+		}
+		
+		modelAndViewFruit.addObject("loginCustomerName", customerLoggedName);
 		return modelAndViewFruit;
 		// System.out.println(listaTest.get(i).getImage());
 	}
@@ -56,7 +65,8 @@ public class ShopController {
 		ModelAndView modelAndAdminArea = new ModelAndView("admin/adminlogin");
 		if (!adminIsLogged) {
 			return modelAndAdminArea;
-		}
+		}		
+		customerIsLogged = false;		
 		modelAndAdminArea = new ModelAndView("admin/adminarea");
 		return modelAndAdminArea;
 	}
@@ -82,16 +92,15 @@ public class ShopController {
 		return modelAndViewAdmin;
 	}
 
-	/// -------------------------------- customer classes
-	/// -----------------------------------------
+	/// -------------------------------- customer classes -----------------------------------------
 	// Method responsible to call the customer login page.
 	@GetMapping("/login")
 	public ModelAndView login() {
 		ModelAndView modelAndViewFruitAndLogin = new ModelAndView("index");
-		if (userIsLogged == true) {
-			userIsLogged = false;
-			loginCustomerName = "Login";
-			modelAndViewFruitAndLogin.addObject("loginCustomerName", loginCustomerName);
+		if (customerIsLogged == true) {
+			customerIsLogged = false;
+			customerLoggedName = "Login";
+			modelAndViewFruitAndLogin.addObject("loginCustomerName", customerLoggedName);
 			Iterable<Fruit> fruitList = fruitRepository.findAll();
 			modelAndViewFruitAndLogin.addObject("fruitList", fruitList);
 			return modelAndViewFruitAndLogin;
@@ -116,9 +125,13 @@ public class ShopController {
 				Iterable<Fruit> fruitList = fruitRepository.findAll();
 				modelAndViewFruitAndCustomer.addObject("fruitList", fruitList);
 				modelAndViewFruitAndCustomer.addObject("cumstomer", searchedCustomer.getName());
-				loginCustomerName = searchedCustomer.getName() + " - Logout";
-				modelAndViewFruitAndCustomer.addObject("loginCustomerName", loginCustomerName);
-				userIsLogged = true;
+				customerLoggedName = searchedCustomer.getName() + " - Logout";
+				modelAndViewFruitAndCustomer.addObject("loginCustomerName", customerLoggedName);
+				loggedCustomer = searchedCustomer;
+				customerLoggedName = loggedCustomer.getName() + " - Logout";				
+				customerIsLogged = true;				 
+				customerLoggedId = searchedCustomer.getId_customer();
+				customerLoggedName = searchedCustomer.getName();
 				return modelAndViewFruitAndCustomer;
 			}
 		}
@@ -158,7 +171,14 @@ public class ShopController {
 	@PostMapping("/")
 	public ModelAndView searchFruit(@ModelAttribute("fruit") Fruit fruit) {			
 		ModelAndView modelAndViewFruit = new ModelAndView("index");		
-		Iterable<Fruit> fruitList = fruitRepository.findByName(fruit.getName());		
+		Iterable<Fruit> fruitList = fruitRepository.findByName(fruit.getName());	
+		
+		if (customerIsLogged == true) {
+			customerLoggedName = loggedCustomer.getName() + " - Logout";
+		} else {
+			customerLoggedName = "Login"; 
+		}
+		modelAndViewFruit.addObject("customerLoggedName", customerLoggedName);
 		modelAndViewFruit.addObject("fruitList", fruitList);				
 		return modelAndViewFruit;
 	}
