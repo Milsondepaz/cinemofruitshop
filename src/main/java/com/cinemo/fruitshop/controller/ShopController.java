@@ -29,13 +29,13 @@ public class ShopController {
 	@Autowired
 	private AdminRepository adminRepository;
 
-	private boolean adminIsLogged = false;	
+	private boolean adminIsLogged = false;
 	private boolean customerIsLogged = false;
-	private String customerLoggedName = "Login"; 
-	
+
+	private String customerLoggedName = "Login";
+
 	private Customer loggedCustomer;
 	private Admin loggedAdmin;
-
 
 	// Main method that calls the main page of the shop fruit
 	// This method searches the Database for previously registered fruits and shows
@@ -44,13 +44,13 @@ public class ShopController {
 	public ModelAndView home() {
 		ModelAndView modelAndViewFruit = new ModelAndView("index");
 		Iterable<Fruit> fruitList = fruitRepository.findAll();
-		modelAndViewFruit.addObject("fruitList", fruitList);			
+		modelAndViewFruit.addObject("fruitList", fruitList);
 		if (customerIsLogged == true) {
 			customerLoggedName = loggedCustomer.getName() + " - Logout";
 		} else {
-			customerLoggedName = "Login"; 
-		}		
-		modelAndViewFruit.addObject("loginCustomerName", customerLoggedName);
+			customerLoggedName = "Login";
+		}
+		modelAndViewFruit.addObject("customerLoggedName", customerLoggedName);
 		return modelAndViewFruit;
 		// System.out.println(listaTest.get(i).getImage());
 	}
@@ -61,15 +61,14 @@ public class ShopController {
 	@GetMapping("/adminarea_adminarealogin")
 	public ModelAndView adminArea() {
 		ModelAndView modelAndAdminArea = new ModelAndView("admin/adminlogin");
-		System.out.println("passou aqui");
-		if (!adminIsLogged) {
-			modelAndAdminArea.addObject("username", loggedAdmin.getUsername());			
+		if (adminIsLogged == false) {
 			return modelAndAdminArea;
-		}else 
-		
-		
-		customerIsLogged = false;		
-		modelAndAdminArea = new ModelAndView("admin/adminarea");
+		} else {
+			String username = loggedAdmin.getUsername();
+			modelAndAdminArea = new ModelAndView("admin/adminarea");
+			modelAndAdminArea.addObject("username", username);
+			customerIsLogged = false;
+		}
 		return modelAndAdminArea;
 	}
 
@@ -79,36 +78,38 @@ public class ShopController {
 	// otherwise, keep it on the same page.
 	@PostMapping("/adminlogin")
 	public ModelAndView adminLogin(@ModelAttribute("admin") Admin pr_admin) {
-		Admin admin = adminRepository.findByNameAndPass(pr_admin.getUsername().trim(), pr_admin.getPassword().trim());
-		if (admin != null) {
-			adminIsLogged = true;
-			customerIsLogged = false;
-			loggedAdmin = admin;
-			ModelAndView modelAndViewAdmin = new ModelAndView("admin/adminarea");
-			modelAndViewAdmin.addObject("username", loggedAdmin.getUsername());
-			// message = success in login!
-			return modelAndViewAdmin;
+		ModelAndView modelAndViewAdmin = new ModelAndView("admin/adminarea");
+		if (customerIsLogged == true) {
+			String username = loggedAdmin.getUsername();
+			modelAndViewAdmin.addObject("username", username);
+		} else {
+			Admin admin = adminRepository.findByNameAndPass(pr_admin.getUsername().trim(),
+					pr_admin.getPassword().trim());
+			if (admin != null) {
+				adminIsLogged = true;
+				customerIsLogged = false;
+				loggedAdmin = admin;
+				String username = loggedAdmin.getUsername();
+				modelAndViewAdmin.addObject("username", username);
+				// message = success in login!
+				return modelAndViewAdmin;
+			}
 		}
 		// message = sorry wrong credentials
 		// still in login page
-		ModelAndView modelAndViewAdmin = new ModelAndView("admin/adminlogin");
+		modelAndViewAdmin = new ModelAndView("admin/adminlogin");
 		return modelAndViewAdmin;
 	}
-	
-	// Method responsible for sending the user to the Admin area, for this he must
-		// first login,
-		// If he is already logged in, he will be directed to the admin area directly.
-		@GetMapping("/adminlogout")
-		public ModelAndView adminLogout() {
-			ModelAndView modelAndAdminArea = new ModelAndView("index");		
-			adminIsLogged = false;		
-			return modelAndAdminArea;
-		}
-	
-	
-	
 
-	/// -------------------------------- customer classes -----------------------------------------
+	// Method responsible for admin logout
+	@GetMapping("/adminlogout")
+	public ModelAndView adminLogout() {
+		adminIsLogged = false;
+		return home();
+	}
+
+	/// -------------------------------- customer classes
+	/// -----------------------------------------
 	// Method responsible to call the customer login page.
 	@GetMapping("/login")
 	public ModelAndView login() {
@@ -116,7 +117,7 @@ public class ShopController {
 		if (customerIsLogged == true) {
 			customerIsLogged = false;
 			customerLoggedName = "Login";
-			modelAndViewFruitAndLogin.addObject("loginCustomerName", customerLoggedName);
+			modelAndViewFruitAndLogin.addObject("customerLoggedName", customerLoggedName);
 			Iterable<Fruit> fruitList = fruitRepository.findAll();
 			modelAndViewFruitAndLogin.addObject("fruitList", fruitList);
 			return modelAndViewFruitAndLogin;
@@ -142,10 +143,10 @@ public class ShopController {
 				modelAndViewFruitAndCustomer.addObject("fruitList", fruitList);
 				modelAndViewFruitAndCustomer.addObject("cumstomer", searchedCustomer.getName());
 				customerLoggedName = searchedCustomer.getName() + " - Logout";
-				modelAndViewFruitAndCustomer.addObject("loginCustomerName", customerLoggedName);
+				modelAndViewFruitAndCustomer.addObject("customerLoggedName", customerLoggedName);
 				loggedCustomer = searchedCustomer;
-				customerLoggedName = loggedCustomer.getName() + " - Logout";				
-				customerIsLogged = true;	
+				customerLoggedName = loggedCustomer.getName() + " - Logout";
+				customerIsLogged = true;
 				adminIsLogged = false;
 				customerLoggedName = searchedCustomer.getName();
 				return modelAndViewFruitAndCustomer;
@@ -163,11 +164,12 @@ public class ShopController {
 
 	// bottomregister
 	// if the mandatory parameters are filled in,
-	// a new user will be added to the Database and will be redirected to the login page ...
+	// a new user will be added to the Database and will be redirected to the login
+	// page ...
 	@PostMapping("/customersignup")
 	public ModelAndView custemorsignup(@ModelAttribute("customer") Customer newCustomer) {
-		ModelAndView modelAndViewFruitAndCustomer = new ModelAndView("customer/signup");				
-		Customer existentCustomer  = customerRepository.findByEmail(newCustomer.getEmail().trim());				
+		ModelAndView modelAndViewFruitAndCustomer = new ModelAndView("customer/signup");
+		Customer existentCustomer = customerRepository.findByEmail(newCustomer.getEmail().trim());
 		if (existentCustomer == null) {
 			newCustomer.setName(newCustomer.getName().trim());
 			newCustomer.setEmail(newCustomer.getEmail().trim());
@@ -175,7 +177,7 @@ public class ShopController {
 			// System.out.println(newCustomer.toString());
 			// message: new user sign up sucessfull.
 			modelAndViewFruitAndCustomer = new ModelAndView("customer/customerlogin");
-		}		
+		}
 		// message: user with this email e-mail arleady exists,please chose an other
 		// e-mail to sign up.
 		modelAndViewFruitAndCustomer = new ModelAndView("customer/customerlogin");
@@ -183,16 +185,16 @@ public class ShopController {
 	}
 
 	@PostMapping("/")
-	public ModelAndView searchFruit(@ModelAttribute("fruit") Fruit fruit) {			
-		ModelAndView modelAndViewFruit = new ModelAndView("index");		
-		Iterable<Fruit> fruitList = fruitRepository.findByName(fruit.getName());			
+	public ModelAndView searchFruit(@ModelAttribute("fruit") Fruit fruit) {
+		ModelAndView modelAndViewFruit = new ModelAndView("index");
+		Iterable<Fruit> fruitList = fruitRepository.findByName(fruit.getName());
 		if (customerIsLogged == true) {
 			customerLoggedName = loggedCustomer.getName() + " - Logout";
 		} else {
-			customerLoggedName = "Login"; 
+			customerLoggedName = "Login";
 		}
 		modelAndViewFruit.addObject("customerLoggedName", customerLoggedName);
-		modelAndViewFruit.addObject("fruitList", fruitList);				
+		modelAndViewFruit.addObject("fruitList", fruitList);
 		return modelAndViewFruit;
 	}
 
