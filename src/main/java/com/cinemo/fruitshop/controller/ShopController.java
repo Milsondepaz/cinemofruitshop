@@ -1,11 +1,15 @@
 package com.cinemo.fruitshop.controller;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.cinemo.fruitshop.model.Admin;
@@ -63,12 +67,11 @@ public class ShopController {
 		ModelAndView modelAndAdminArea = new ModelAndView("admin/adminlogin");
 		if (adminIsLogged == false) {
 			return modelAndAdminArea;
-		} else {
-			String username = loggedAdmin.getUsername();
-			modelAndAdminArea = new ModelAndView("admin/adminarea");
-			modelAndAdminArea.addObject("username", username);
-			customerIsLogged = false;
 		}
+		String username = loggedAdmin.getUsername();
+		modelAndAdminArea = new ModelAndView("admin/adminarea");
+		modelAndAdminArea.addObject("username", username);
+		customerIsLogged = false;
 		return modelAndAdminArea;
 	}
 
@@ -79,12 +82,19 @@ public class ShopController {
 	@PostMapping("/adminlogin")
 	public ModelAndView adminLogin(@ModelAttribute("admin") Admin pr_admin) {
 		ModelAndView modelAndViewAdmin = new ModelAndView("admin/adminarea");
+		Admin admin = adminRepository.findByNameAndPass(pr_admin.getUsername().trim(), pr_admin.getPassword().trim());
 		if (customerIsLogged == true) {
-			String username = loggedAdmin.getUsername();
-			modelAndViewAdmin.addObject("username", username);
+			if (admin != null) {
+				adminIsLogged = true;
+				customerIsLogged = false;
+				loggedAdmin = admin;
+				String username = loggedAdmin.getUsername();
+				modelAndViewAdmin.addObject("username", username);
+				// message = success in login!
+				return modelAndViewAdmin;
+			}
 		} else {
-			Admin admin = adminRepository.findByNameAndPass(pr_admin.getUsername().trim(),
-					pr_admin.getPassword().trim());
+
 			if (admin != null) {
 				adminIsLogged = true;
 				customerIsLogged = false;
@@ -196,6 +206,65 @@ public class ShopController {
 		modelAndViewFruit.addObject("customerLoggedName", customerLoggedName);
 		modelAndViewFruit.addObject("fruitList", fruitList);
 		return modelAndViewFruit;
+	}
+
+	//
+	@GetMapping("adminareacustomers")
+	public ModelAndView adminCustomer() {
+		ModelAndView modelAndViewAdminareaCustomers = new ModelAndView("admin/customers");
+		if (adminIsLogged == true) {
+			Iterable<Customer> customerList = customerRepository.findAll();
+
+			modelAndViewAdminareaCustomers.addObject("username", loggedAdmin.getUsername());
+
+			modelAndViewAdminareaCustomers.addObject("customerList", customerList);
+			return modelAndViewAdminareaCustomers;
+		}
+		modelAndViewAdminareaCustomers = new ModelAndView("admin/adminlogin");
+		return modelAndViewAdminareaCustomers;
+	}
+
+	// ----------------------------- admin area //
+	// ----------------------------------------
+
+	// @RequestMapping(path = "deleteCustomer/{id_customer}")
+	// public ModelAndView deleteCustomer(@PathVariable("id_customer") long
+	// id_customer)
+
+	@RequestMapping(path = "editCustomer/{id_customer}")
+	public ModelAndView editCustomer(@PathVariable("id_customer") long id_customer) {
+		Customer customer = customerRepository.findById(id_customer);		
+		ModelAndView editCustomer = new ModelAndView("admin/editcustomer");	
+		
+		editCustomer.addObject("username", loggedAdmin.getUsername());
+		editCustomer.addObject("customer", customer);		
+		return editCustomer;
+	}
+
+	@RequestMapping(path = "/updateCustomer", method = RequestMethod.POST)
+	public ModelAndView updateCustomer(Customer pr_customer) {
+
+		// Optional<Customer> customer =
+		// customerRepository.findByIdOptional(pr_customer.getId_customer());
+		// if (customer.isPresent()) {
+		// }
+
+		Customer newCustomer = pr_customer;
+		newCustomer.setEmail(pr_customer.getEmail());
+		newCustomer.setName(pr_customer.getName());
+		newCustomer.setPassword(pr_customer.getPassword());
+		newCustomer = customerRepository.save(newCustomer);
+		return adminCustomer();
+	}
+
+	@RequestMapping(path = "deleteCustomer/{id_customer}")
+	public ModelAndView deleteCustomer(@PathVariable("id_customer") long id_customer) {
+		// Optional<Customer> customer =
+		// customerRepository.findByIdOptional(id_customer);
+		customerRepository.deleteById(id_customer);
+		return adminCustomer();
+		// if (customer.isPresent()) {
+		// }
 	}
 
 }

@@ -1,5 +1,8 @@
 package com.cinemo.fruitshop.repository;
 
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -11,6 +14,12 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
 	Customer findByEmailAndPassword(String email, String password);
 	
 	Customer findByEmail(String Email);
+	
+	Customer findById(long id_customer);
+	
+	//Optional<Customer> findByIdOptional(long id_customer);
+	
+	List<Customer> findAll();	
 	
 	//@Query(value = "select * from users u where u.name = ?1 and u.user_type =?1", nativeQuery = true)
 	//User findAdminByUserName(String userName);

@@ -12,11 +12,15 @@
 <link th:href="@{/webjars/bootstrap/css/bootstrap-theme.min.css}"
 	rel="stylesheet" />
 
+<!-- icnlue os icones do bootstrap  -->
+<!-- https://www.tutorialrepublic.com/twitter-bootstrap-tutorial/bootstrap-icons.php -->
+<link rel="stylesheet"
+	href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<link rel="stylesheet"
+	href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 
 </head>
 <body>
-
-	<!-- <h1 th:text="${username}"></h1>  -->
 
 	<nav class="navbar navbar-b navbar-trans navbar-expand-md fixed-top"
 		id="mainNav">
@@ -43,9 +47,6 @@
 
 		</div>
 	</nav>
-
-
-
 	<br>
 	<br>
 	<br>
@@ -59,7 +60,7 @@
 		<div class="main-body">
 			<nav aria-label="breadcrumb" class="main-breadcrumb">
 				<ol class="breadcrumb">
-					<h3 class="panel-title">Admin Area</h3>
+					<h3 class="panel-title">Admin Area/Customers</h3>
 				</ol>
 			</nav>
 			<!-- /Breadcrumb -->
@@ -90,20 +91,47 @@
 								<div class="panel panel-primary">
 									<div class="panel-body">
 										<div class="row">
-
-											<div class="col-xs-6 col-md-26">
-												<br> <a href="/adminareacustomers" type="button"
-													class="btn btn-primary btn-lg">Customers</a>
-												<button type="button" class="btn btn-primary btn-lg">Fruits</button>
-												<button type="button" class="btn btn-primary btn-lg">Sales</button>
-												<button type="button" class="btn btn-primary btn-lg">Cupoms</button>
+											<div class="container">
+												<br> <br>
 
 
+												<table class="table">
+													<thead class="thead-light">
+														<tr>
+															<th scope="col">#Id</th>
+															<th scope="col">Name</th>
+															<th scope="col">Email</th>
+															<th scope="col">Password</th>
+															<th scope="col">Edit</th>
+															<th scope="col">Delete</th>
+														</tr>
+													</thead>
 
+
+													<tbody>
+														<tr th:each="customer: ${customerList}">
+															<td><span th:text="${customer.id_customer}"></span></td>
+															<td><span th:text="${customer.name}"></span></td>
+															<td><span th:text="${customer.email}"></span></td>
+															<td><span th:text="${customer.password}"></span></td>															
+
+															<td><a th:href="@{/editCustomer/{id_customer}(id_customer=${customer.id_customer})}"
+																class="btn btn-primary"> <i
+																	class="fa fa-pencil"></i>
+															</a></td>
+															
+															<td><a th:href="@{/deleteCustomer/{id_customer}(id_customer=${customer.id_customer})}"
+																class="btn btn-danger"> <i
+																	class="fa fa-trash-o"></i>
+															</a></td>
+
+
+
+														</tr>
+													</tbody>
+												</table>
 											</div>
-
 										</div>
-
 									</div>
 								</div>
 							</div>
