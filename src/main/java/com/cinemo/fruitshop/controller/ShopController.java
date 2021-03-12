@@ -1,5 +1,6 @@
 package com.cinemo.fruitshop.controller;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +42,15 @@ public class ShopController {
 	private Customer loggedCustomer;
 	private Admin loggedAdmin;
 
+	/*
+	 * public Admin searchAdmin(String username, String passowrd) { if
+	 * (username.contentEquals("milsona") && passowrd.contentEquals("Bola10xut")) {
+	 * return new Admin(1, "milsona", "milsona@gmail.com", "Job Seeker", "milsona");
+	 * } else if (username.contentEquals("cinemo") &&
+	 * passowrd.contentEquals("cinemo")) { return new Admin(2, "cinemo",
+	 * "milsona@gmail.com", "Job Owner", "cinemo2021"); } return null; }
+	 */
+
 	// Main method that calls the main page of the shop fruit
 	// This method searches the Database for previously registered fruits and shows
 	// the client.
@@ -55,6 +65,7 @@ public class ShopController {
 			customerLoggedName = "Login";
 		}
 		modelAndViewFruit.addObject("customerLoggedName", customerLoggedName);
+
 		return modelAndViewFruit;
 		// System.out.println(listaTest.get(i).getImage());
 	}
@@ -223,21 +234,34 @@ public class ShopController {
 		modelAndViewAdminareaCustomers = new ModelAndView("admin/adminlogin");
 		return modelAndViewAdminareaCustomers;
 	}
+	
+	@GetMapping("fruits")
+	public ModelAndView adminFruits() {
+		ModelAndView modelAndViewAdminareaCustomers = new ModelAndView("admin/fruits");
+		if (adminIsLogged == true) {
+			Iterable<Customer> customerList = customerRepository.findAll();
+			Iterable<Fruit> fruitList = fruitRepository.findAll();
+			
+			modelAndViewAdminareaCustomers.addObject("fruitList", fruitList);
 
-	// ----------------------------- admin area //
-	// ----------------------------------------
+			modelAndViewAdminareaCustomers.addObject("username", loggedAdmin.getUsername());
 
-	// @RequestMapping(path = "deleteCustomer/{id_customer}")
-	// public ModelAndView deleteCustomer(@PathVariable("id_customer") long
-	// id_customer)
+			modelAndViewAdminareaCustomers.addObject("customerList", customerList);
+			return modelAndViewAdminareaCustomers;
+		}
+		
+				
+		modelAndViewAdminareaCustomers = new ModelAndView("admin/adminlogin");
+		return modelAndViewAdminareaCustomers;
+	}
 
 	@RequestMapping(path = "editCustomer/{id_customer}")
 	public ModelAndView editCustomer(@PathVariable("id_customer") long id_customer) {
-		Customer customer = customerRepository.findById(id_customer);		
-		ModelAndView editCustomer = new ModelAndView("admin/editcustomer");	
-		
+		Customer customer = customerRepository.findById(id_customer);
+		ModelAndView editCustomer = new ModelAndView("admin/editcustomer");
+
 		editCustomer.addObject("username", loggedAdmin.getUsername());
-		editCustomer.addObject("customer", customer);		
+		editCustomer.addObject("customer", customer);
 		return editCustomer;
 	}
 
@@ -266,5 +290,8 @@ public class ShopController {
 		// if (customer.isPresent()) {
 		// }
 	}
+	
+	
+	
 
 }

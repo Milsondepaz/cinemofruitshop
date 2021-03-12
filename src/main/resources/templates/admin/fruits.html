@@ -11,6 +11,15 @@
 	rel="stylesheet" />
 <link th:href="@{/webjars/bootstrap/css/bootstrap-theme.min.css}"
 	rel="stylesheet" />
+
+<!-- icnlue os icones do bootstrap  -->
+<!-- https://www.tutorialrepublic.com/twitter-bootstrap-tutorial/bootstrap-icons.php -->
+<link rel="stylesheet"
+	href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<link rel="stylesheet"
+	href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+
 </head>
 <body>
 
@@ -51,14 +60,11 @@
 	<div class="container">
 		<div class="main-body">
 			<nav aria-label="breadcrumb" class="main-breadcrumb">
-				<ol class="breadcrumb">
-					<h3 class="panel-title">Admin Area</h3>
-				</ol>
+				<ol class="breadcrumb"> Admin Area/Stock </ol>
 			</nav>
 			<!-- /Breadcrumb -->
 
 			<div class="row gutters-sm">
-
 				<div class="col-md-3 mb-3">
 					<div class="card">
 						<div class="card-body">
@@ -75,55 +81,56 @@
 					</div>
 				</div>
 
+
 				<div class="col-md-8">
+					<div class="row">
+						<div class="ml-4 mt-2">
+							<button type="button" th:onclick="showAlert()"
+								class="btn btn-block ml-4 mt-2 mb-4 btn-success"
+								data-toggle="modal" data-target="#exampleModal"
+								data-whatever="@mdo">Add products</button>
+						</div>
+					</div>
 
 					<div class="container bootstrap snippets bootdey">
 						<div class="row">
 							<div class="col-md-12">
 								<div class="panel panel-primary">
-									<div class="panel-body">
-										<div class="row">
 
-											<div class="col-xs-6 col-md-26">
-												<!-- 
-												<a href="#" class="btn btn-danger" role="button"><span
-													class="glyphicon glyphicon-list-alt"></span> <br />Customers</a> 
-												<a href="#" class="btn btn-warning" role="button"><span
-													class="glyphicon glyphicon-bookmark"></span> <br />Fruits</a>
-												
-												<a href="#" class="btn btn-primary" role="button"><span
-													class="glyphicon glyphicon-signal"></span> <br />Sales</a>
-													
-												<a href="#" class="btn btn-primary" role="button"><span
-													class="glyphicon glyphicon-signal"></span> <br />Cupoms</a>  -->
-												<br>
-												<button type="button" class="btn btn-primary btn-lg">Customers</button>
-												<button type="button" class="btn btn-primary btn-lg">Fruits</button>
-												<button type="button" class="btn btn-primary btn-lg">Sales</button>
-												<button type="button" class="btn btn-primary btn-lg">Cupoms</button>
-
-
-
+									<div class="container">
+										<section>
+											<div class="row">
+												<div th:each="fruit: ${fruitList}" class="col-md-3 mb-4">
+													<div class="card">
+														<img class="img-fluid w-100" th:src="${fruit.image_path}">
+														<div class="text-center pt-4">
+															<p>
+																Product: <b><span th:text="${fruit.name}"></span></b>
+															</p>
+															<p>
+																Price: <b><span th:text="${fruit.price}"></span></b>
+															</p>
+														</div>
+													</div>
+												</div>
 											</div>
-
-										</div>
-
+										</section>
 									</div>
 								</div>
 							</div>
 						</div>
 					</div>
-
-
-
-
-
 				</div>
 			</div>
 		</div>
+
+		<th:block th:replace="admin/_modals :: modal('exampleModal')">modal</th:block>
+
 	</div>
 
-
+	<script th:src="@{/webjars/jquery/jquery.min.js}"></script>
+	<script th:src="@{/webjars/popper.js/umd/popper.min.js}"></script>
+	<script th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
 
 </body>
 </html>
