@@ -238,6 +238,7 @@ public class ShopController {
 	@GetMapping("fruits")
 	public ModelAndView adminFruits() {
 		ModelAndView modelAndViewAdminareaCustomers = new ModelAndView("admin/fruits");
+		
 		if (adminIsLogged == true) {
 			Iterable<Customer> customerList = customerRepository.findAll();
 			Iterable<Fruit> fruitList = fruitRepository.findAll();
@@ -247,11 +248,12 @@ public class ShopController {
 			modelAndViewAdminareaCustomers.addObject("username", loggedAdmin.getUsername());
 
 			modelAndViewAdminareaCustomers.addObject("customerList", customerList);
+			
 			return modelAndViewAdminareaCustomers;
 		}
-		
-				
+						
 		modelAndViewAdminareaCustomers = new ModelAndView("admin/adminlogin");
+		
 		return modelAndViewAdminareaCustomers;
 	}
 
@@ -291,6 +293,61 @@ public class ShopController {
 		// }
 	}
 	
+	
+	// add produts - Fruits
+	// if the mandatory parameters are filled in,
+	// a new user will be added to the Database and will be redirected to the login
+	// page ...
+	@PostMapping("/addnewfruit")
+	public ModelAndView addNewFruit(@ModelAttribute("fruit") Fruit fruit) {
+		
+		
+		fruitRepository.save(fruit);
+		
+		/*
+		 * ModelAndView modelAndViewFruitAndCustomer = new ModelAndView("customer/signup"); 
+		 * Customer existentCustomer =
+		 * customerRepository.findByEmail(newCustomer.getEmail().trim()); if
+		 * (existentCustomer == null) {
+		 * newCustomer.setName(newCustomer.getName().trim());
+		 * newCustomer.setEmail(newCustomer.getEmail().trim());
+		 * customerRepository.save(newCustomer); //
+		 * System.out.println(newCustomer.toString()); // message: new user sign up
+		 * sucessfull. modelAndViewFruitAndCustomer = new
+		 * ModelAndView("customer/customerlogin"); } // message: user with this email
+		 * e-mail arleady exists,please chose an other // e-mail to sign up.
+		 * modelAndViewFruitAndCustomer = new ModelAndView("customer/customerlogin");
+		 */
+		
+		
+		
+		return adminFruits();
+	}
+	
+	@RequestMapping(path = "deletefruit/{id_fruit}")
+	public ModelAndView deleteFruit(@PathVariable("id_fruit") long id_fruit) {		
+		fruitRepository.deleteById(id_fruit);
+		return adminFruits();		
+	}
+	
+	
+	//call edit fruit modal
+	@RequestMapping(path = "editfruit/{id_fruit}")
+	public void editfruit(@PathVariable("id_fruit") long id_fruit) {
+		
+		
+		//Customer customer = customerRepository.findById(id_customer);
+		//ModelAndView editCustomer = new ModelAndView("admin/editcustomer");
+
+		//editCustomer.addObject("username", loggedAdmin.getUsername());
+		//editCustomer.addObject("customer", customer);
+		
+		System.out.println(id_fruit); 
+		
+		
+		//return editCustomer;
+		
+	}
 	
 	
 
